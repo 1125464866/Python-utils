@@ -1,0 +1,43 @@
+name: CD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  send_email:  # Define a job named send_email
+    runs-on: ubuntu-latest  # Specify the runner
+    steps:
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: smtp.qq.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ${{ secrets.EMAIL_TITLE }}
+          body: ${{ secrets.EMAIL_BODY }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          content_type: text/html
+
+  auto_merge_to_main:
+    needs: send_email
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Merge master into main
+        run: |
+          git fetch origin main:main
+          git checkout main
+          git merge --allow-unrelated-histories --no-ff master -m "Merge master into main"
+          git push origin main
