@@ -20,3 +20,24 @@ jobs:
           to: ${{ secrets.EMAIL_TO }}
           from: ${{ secrets.EMAIL_FROM }}
           content_type: text/html
+
+  auto_merge_to_main:
+    needs: send_email
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Ensures all history is fetched
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Merge master into main
+        run: |
+          git fetch origin main:main
+          git checkout main
+          git merge --no-ff master -m "Merge master into main"
+          git push origin main
