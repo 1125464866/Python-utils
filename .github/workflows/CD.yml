@@ -5,10 +5,10 @@ on:
     branches: [ master ]
 
 jobs:
-send_email:
-    runs-on: ubuntu-latest
+  send_email:  # Define a job named send_email
+    runs-on: ubuntu-latest  # Specify the runner
     steps:
-      - name: 发送邮件
+      - name: Send email notification
         uses: dawidd6/action-send-mail@v2
         with:
           server_address: smtp.qq.com
